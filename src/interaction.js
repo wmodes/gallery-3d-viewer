@@ -63,6 +63,8 @@ export function createInteractionController(
   let velocityY = 0;
   let coasting = true;
   let zoomDistance = camera.position.z;
+  let pinchStartDistance = 0;
+  const activePointers = new Map();
 
   // Idle spin: give a gentle initial impulse
   velocityX = idleSpinImpulse;
@@ -71,26 +73,58 @@ export function createInteractionController(
   debugLog('idle spin impulse applied', { velocityX });
 
   function onPointerDown(event) {
-    isDragging = true;
-    coasting = false;
-    const { clientX, clientY } = getPoint(event);
-    lastX = clientX;
-    lastY = clientY;
-    lastMoveTime = event.timeStamp || performance.now();
-    debugLog('pointerdown', { x: clientX, y: clientY });
+    if (event.cancelable) event.preventDefault();
+    activePointers.set(event.pointerId, {
+      clientX: event.clientX,
+      clientY: event.clientY
+    });
+    const points = Array.from(activePointers.values());
+
+    if (points.length === 1) {
+      isDragging = true;
+      coasting = false;
+      lastX = points[0].clientX;
+      lastY = points[0].clientY;
+      lastMoveTime = event.timeStamp || performance.now();
+      pinchStartDistance = 0;
+    } else if (points.length === 2) {
+      isDragging = false; // avoid rotation while pinching
+      pinchStartDistance = distance(points[0], points[1]);
+    }
+
+    debugLog('pointerdown', { x: event.clientX, y: event.clientY, pointers: points.length });
   }
 
   function onPointerMove(event) {
-    if (!isDragging) return;
-    const { clientX, clientY } = getPoint(event);
-    const dx = clientX - lastX;
-    const dy = clientY - lastY;
-    lastX = clientX;
-    lastY = clientY;
+    if (event.cancelable) event.preventDefault();
+    if (!activePointers.has(event.pointerId)) return;
+    activePointers.set(event.pointerId, { clientX: event.clientX, clientY: event.clientY });
+    const points = Array.from(activePointers.values());
     const now = event.timeStamp || performance.now();
     const dtMs = Math.max(now - lastMoveTime, 1);
     const dtSeconds = dtMs / 1000;
     lastMoveTime = now;
+
+    // Handle pinch zoom when two pointers are active
+    if (points.length === 2) {
+      const pinchDist = distance(points[0], points[1]);
+      if (pinchStartDistance === 0) pinchStartDistance = pinchDist;
+      const distDelta = pinchDist - pinchStartDistance;
+      pinchStartDistance = pinchDist;
+
+      const zoomDelta = -distDelta * (zoomSpeed * pinchZoomMultiplier);
+      zoomDistance = clamp(zoomDistance + zoomDelta, minZoom, maxZoom);
+      camera.position.set(camera.position.x, camera.position.y, zoomDistance);
+      debugLog('pinch', { distDelta, zoomDistance });
+      return;
+    }
+
+    if (!isDragging || points.length === 0) return;
+
+    const dx = points[0].clientX - lastX;
+    const dy = points[0].clientY - lastY;
+    lastX = points[0].clientX;
+    lastY = points[0].clientY;
 
     const accel = spinAcceleration * 0.002;
     const rotY = dx * accel * yAxisMultiplier;
@@ -109,7 +143,18 @@ export function createInteractionController(
   }
 
   function onPointerUp() {
-    isDragging = false;
+    activePointers.delete(event.pointerId);
+    const points = Array.from(activePointers.values());
+
+    if (points.length === 1) {
+      isDragging = true;
+      lastX = points[0].clientX;
+      lastY = points[0].clientY;
+      pinchStartDistance = 0;
+    } else {
+      isDragging = false;
+      pinchStartDistance = 0;
+    }
     const minSpeed = Math.max(minAngularSpeed, 0);
     const speedMag = Math.max(Math.abs(velocityX), Math.abs(velocityY));
     coasting = speedMag >= minSpeed;
@@ -130,16 +175,16 @@ export function createInteractionController(
     debugLog('wheel', { deltaY: event.deltaY, zoomDistance, isPinchLike, effectiveSpeed });
   }
 
-  function getPoint(event) {
-    if (event.touches && event.touches.length > 0) {
-      return { clientX: event.touches[0].clientX, clientY: event.touches[0].clientY };
-    }
-    return { clientX: event.clientX, clientY: event.clientY };
+  function distance(p1, p2) {
+    const dx = p1.clientX - p2.clientX;
+    const dy = p1.clientY - p2.clientY;
+    return Math.hypot(dx, dy);
   }
 
   canvas.addEventListener('pointerdown', onPointerDown);
   canvas.addEventListener('pointermove', onPointerMove);
   window.addEventListener('pointerup', onPointerUp);
+  window.addEventListener('pointercancel', onPointerUp);
   canvas.addEventListener('wheel', onWheel, { passive: false });
 
   debugLog('listeners attached');
