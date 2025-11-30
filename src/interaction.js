@@ -17,6 +17,8 @@
  * @param {number} [interactionConfig.yAxisMultiplier]
  * @param {number} [interactionConfig.minAngularSpeed]
  * @param {number} [interactionConfig.initialYawSpin]
+ * @param {number} [interactionConfig.uprightStrength]
+ * @param {number} [interactionConfig.uprightThreshold]
  * @param {Object} [debugConfig]
  * @param {boolean} [debugConfig.interactions=false]
  * @returns {{update: (delta: number) => void, dispose: () => void}}
@@ -39,7 +41,9 @@ export function createInteractionController(
     xAxisMultiplier = 0.6,
     yAxisMultiplier = 1.0,
     minAngularSpeed = 0.0,
-    initialYawSpin = 0.0
+    initialYawSpin = 0.0,
+    uprightStrength = 0.0,
+    uprightThreshold = 0.0
   } = interactionConfig;
   const { interactions: debugInteractions = false } = debugConfig;
 
@@ -153,11 +157,26 @@ export function createInteractionController(
     velocityX *= damping;
     velocityY *= damping;
 
-    // Clamp to minimum angular speed while coasting; allow user to stop below the floor
+    // Gentle self-righting near the floor while coasting
+    const speedMag = Math.max(Math.abs(velocityX), Math.abs(velocityY));
     const minSpeed = Math.max(minAngularSpeed, 0);
+    const uprightKickIn = Math.max(uprightThreshold, minSpeed);
+    const uprightActive = coasting && uprightStrength > 0 && speedMag <= uprightKickIn;
+    if (uprightActive) {
+      const uprightDamping = Math.exp(-uprightStrength * delta);
+      velocityY *= uprightDamping;
+      const angleX = normalizeAngle(model.rotation.x);
+      const correction = -angleX * uprightStrength * delta;
+      velocityY += correction;
+      if (Math.abs(velocityY) < 1e-5) velocityY = 0;
+    }
+
+    // Clamp to minimum angular speed while coasting; allow user to stop below the floor
     if (coasting && minSpeed > 0) {
       if (Math.abs(velocityX) < minSpeed) velocityX = Math.sign(velocityX) * minSpeed;
-      if (Math.abs(velocityY) < minSpeed) velocityY = Math.sign(velocityY) * minSpeed;
+      if (!uprightActive && Math.abs(velocityY) < minSpeed) {
+        velocityY = Math.sign(velocityY) * minSpeed;
+      }
     }
 
     // When not coasting, allow the velocity to decay to zero without enforcing the floor
@@ -179,4 +198,9 @@ export function createInteractionController(
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function normalizeAngle(angle) {
+  // Normalize to [-PI, PI] to find the shortest path to upright
+  return Math.atan2(Math.sin(angle), Math.cos(angle));
 }

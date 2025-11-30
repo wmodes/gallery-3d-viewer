@@ -38,6 +38,10 @@
         "minAngularSpeed": 0.5,
         // Extra initial yaw spin on load (rad/s), obeys normal friction
         "initialYawSpin": 10.0,
+        // Gentle upright correction (0 = none)
+        "uprightStrength": 0.25,
+        // Spin speed threshold below which upright correction activates (rad/s)
+        "uprightThreshold": 0.6,
 
         // Zoom controls
         "zoomSpeed": 0.002,
@@ -46,7 +50,7 @@
         "maxZoom": 12,
 
         // Axis multipliers (dampen x more than y, etc.)
-        "xAxisMultiplier": 0.1,
+        "xAxisMultiplier": 0.2,
         "yAxisMultiplier": 1.0
       }
     },
