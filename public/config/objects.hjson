@@ -1,0 +1,68 @@
+{
+  "debug": {
+    "interactions": true
+  },
+
+  "objects": {
+
+    "default": {
+      "scene": {
+        "background": "#111111",
+
+        "camera": {
+          "fov": 50,
+          "position": [0, 0, 5]
+        },
+
+        "lights": {
+          "directional": {
+            "color": "#ffffff",
+            "intensity": 3.0,
+            "position": [3, 5, 2]
+          },
+          "ambient": {
+            "color": "#ffffff",
+            "intensity": 0.4
+          }
+        }
+      },
+
+      "interaction": {
+        // Drag responsiveness (higher = more rotation per pixel)
+        "spinAcceleration": 2.0,
+        // 0 = never stops, 1 = instant stop (frame-rate independent)
+        "spinFriction": 0.4,
+        // Initial gentle spin on load (rad/s)
+        "idleSpinImpulse": 0.2,
+        // Minimum angular speed before stopping (rad/s)
+        "minAngularSpeed": 0.5,
+        // Extra initial yaw spin on load (rad/s), obeys normal friction
+        "initialYawSpin": 10.0,
+
+        // Zoom controls
+        "zoomSpeed": 0.002,
+        "pinchZoomMultiplier": 16.0,
+        "minZoom": 2,
+        "maxZoom": 12,
+
+        // Axis multipliers (dampen x more than y, etc.)
+        "xAxisMultiplier": 0.1,
+        "yAxisMultiplier": 1.0
+      }
+    },
+
+    "hoon_dog": {
+      "objClass": "base",
+      "modelPath": "/assets/objects/hoon_dog/hoon_dog.glb",
+      "sizeRank": 3,
+
+      "sockets": [],
+      "allowedSockets": [],
+      "influence": { "radius": 0.1 },
+
+      "scene": {
+        /* only stuff that overrides the defaults */
+      }
+    }
+  }
+}
