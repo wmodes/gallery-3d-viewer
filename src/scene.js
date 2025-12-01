@@ -36,14 +36,14 @@ export function createScene(sceneConfig = {}) {
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(background);
 
+  const { width: initialWidth, height: initialHeight } = getViewportSize();
   const camera = new THREE.PerspectiveCamera(
     cameraConfig.fov,
-    window.innerWidth / window.innerHeight,
+    initialWidth / initialHeight,
     0.1,
     100
   );
@@ -71,13 +71,20 @@ export function createScene(sceneConfig = {}) {
   scene.add(ambient);
 
   function onResize() {
-    const { innerWidth, innerHeight } = window;
-    camera.aspect = innerWidth / innerHeight;
+    const { width, height } = getViewportSize();
+    camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth, innerHeight);
+    renderer.setSize(width, height, true);
   }
   window.addEventListener('resize', onResize);
   onResize();
 
   return { scene, camera, renderer };
+}
+
+function getViewportSize() {
+  if (window.visualViewport) {
+    return { width: window.visualViewport.width, height: window.visualViewport.height };
+  }
+  return { width: window.innerWidth, height: window.innerHeight };
 }

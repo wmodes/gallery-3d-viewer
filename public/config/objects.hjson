@@ -14,6 +14,12 @@
           "position": [0, 0, 5]
         },
 
+        // Camera framing helpers
+        // Base padding multiplier for fit; larger pushes camera back slightly
+        "fitPadding": 1.0,
+        // Extra scale applied only when aspect < 1 (portrait). >1.0 moves camera further back.
+        "fitPaddingPortraitScale": 1.1,
+
         "lights": {
           "directional": {
             "color": "#ffffff",
