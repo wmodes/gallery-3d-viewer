@@ -61,37 +61,104 @@
       }
     },
 
-    hoon_dog: {
-      objClass: "base",
-      modelPath: "/assets/objects/hoon_dog/hoon_dog.glb",
-      size: 1.0,
-      sizeRank: 3,
+    "hoon_dog": {
+      "objClass": "base",
+      "modelPath": "/assets/objects/hoon_dog/hoon_dog.glb",
+      "size": 1.0,
+      "sizeRank": 3,
 
-      sockets: [],
-      allowedSockets: [],
-      influence: { radius: 0.1 },
+      // TODO: add hoon_dog sockets once finalized in Blender
+      "sockets": [],
+      "allowedSockets": [],
+      "influence": { "radius": 0.1 },
 
-      scene: {
-        /* only stuff that overrides the defaults */
+      "scene": {
+        // only stuff that overrides the defaults
       }
     },
 
-    horn1: {
-      objClass: "accessory",
-      modelPath: "/assets/objects/horn1/horn1.glb",
-      size: 0.5,
-      sizeRank: 1,
-      influence: { radius: 0.05 },
-      allowedSockets: []   # all sockets
+    "bunny_mask": {
+      "objClass": "accessory",
+      "modelPath": "/assets/objects/bunny_mask/bunny_mask.glb",
+      "size": 0.8,
+      "sizeRank": 2,
+
+      // child sockets on the bunny mask (ears / top, etc.)
+      "sockets": [
+        { "id": 0, "node": "socket_c_0" },
+        { "id": 1, "node": "socket_c_1" }
+      ],
+
+      // empty = can attach to any socket on a larger host
+      "allowedSockets": [],
+      "influence": { "radius": 0.12 }
     },
 
-    horn2: {
-      objClass: "accessory",
-      modelPath: "/assets/objects/horn2/horn2.glb",
-      size: 0.5,
-      sizeRank: 1,
-      influence: { radius: 0.05 },
-      allowedSockets: []
+    human_mask: {
+      objClass: "accessory"
+      modelPath: "/assets/objects/human_mask/human_mask.glb"
+      size: 0.8
+      sizeRank: 2
+      influence: { radius: 0.15 }
+
+      sockets: [
+        { id: 0, node: "socket_c_0" }
+        // more later if needed
+      ]
+    },
+
+    "pig_mask": {
+      "objClass": "accessory",
+      "modelPath": "/assets/objects/pig_mask/pig_mask.glb",
+      "size": 0.8,
+      "sizeRank": 2,
+
+      // single child socket on top of the pig mask
+      "sockets": [
+        { "id": 0, "node": "socket_c_0" }
+      ],
+
+      "allowedSockets": [],
+      "influence": { "radius": 0.12 }
+    },
+
+    "nose1": {
+      "objClass": "accessory",
+      "modelPath": "/assets/objects/nose1/nose1.glb",
+      "size": 0.6,
+      "sizeRank": 2,
+
+      // socket where horns can stack on the nose
+      "sockets": [
+        { "id": 0, "node": "socket_c_0" }
+      ],
+
+      "allowedSockets": [],
+      "influence": { "radius": 0.06 }
+    },
+
+    "horn1": {
+      "objClass": "accessory",
+      "modelPath": "/assets/objects/horn1/horn1.glb",
+      "size": 0.5,
+      "sizeRank": 1,
+
+      // horns don’t host anything (no child sockets)
+      "sockets": [],
+      // empty = can go on any socket on any bigger object (nose, masks, dog)
+      "allowedSockets": [],
+      "influence": { "radius": 0.05 }
+    },
+
+    "horn2": {
+      "objClass": "accessory",
+      "modelPath": "/assets/objects/horn2/horn2.glb",
+      "size": 0.5,
+      "sizeRank": 1,
+
+      "sockets": [],
+      "allowedSockets": [],
+      "influence": { "radius": 0.05 }
     }
   }
 }
