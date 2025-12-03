@@ -3,7 +3,13 @@ import HJSON from 'hjson';
 
 /**
  * Fetch and parse the object configuration from the public config folder.
- * @returns {Promise<{base: Record<string, any>, accessories: Record<string, any>[], debug: Record<string, any>}>}
+ * @returns {Promise<{
+ *   base: Record<string, any>,
+ *   bases: Record<string, any>[],
+ *   accessories: Record<string, any>[],
+ *   allObjects: Record<string, any>[],
+ *   debug: Record<string, any>
+ * }>}
  */
 export async function loadObjectConfig() {
   const response = await fetch('/config/objects.hjson');
@@ -18,23 +24,29 @@ export async function loadObjectConfig() {
   const defaults = objects.default ?? {};
   const debug = parsed?.debug ?? {};
 
-  const objectEntries = Object.entries(objects)
+  const allObjects = Object.entries(objects)
     .filter(([name]) => name !== 'default')
-    .map(([name, value]) => ({ name, ...value }));
+    .map(([name, value]) => {
+      const mergedScene = { ...(defaults.scene || {}), ...(value.scene || {}) };
+      const mergedInteraction = { ...(defaults.interaction || {}), ...(value.interaction || {}) };
 
-  const baseObjects = objectEntries.filter((entry) => entry?.objClass === 'base');
-  const accessories = objectEntries.filter((entry) => entry?.objClass === 'accessory');
+      return {
+        name,
+        ...defaults,
+        ...value,
+        scene: mergedScene,
+        interaction: mergedInteraction
+      };
+    });
 
-  if (baseObjects.length === 0) {
+  const bases = allObjects.filter((entry) => entry?.objClass === 'base');
+  const accessories = allObjects.filter((entry) => entry?.objClass === 'accessory');
+
+  if (bases.length === 0) {
     throw new Error('No base object found in configuration.');
   }
 
-  const selectedBase = baseObjects[0];
-  const mergedScene = {
-    ...(defaults.scene || {}),
-    ...(selectedBase.scene || {})
-  };
-  const base = { ...defaults, ...selectedBase, scene: mergedScene };
+  const base = bases[0];
 
-  return { base, accessories, debug };
+  return { base, bases, accessories, allObjects, debug };
 }

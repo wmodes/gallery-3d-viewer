@@ -61,38 +61,80 @@
       }
     },
 
-    "hoon_dog": {
-      "objClass": "base",
-      "modelPath": "/assets/objects/hoon_dog/hoon_dog.glb",
-      "size": 1.0,
-      "sizeRank": 3,
+    hoon_dog: {
+      objClass: "base"
+      modelPath: "/assets/objects/hoon_dog/hoon_dog.glb"
+      size: 1.0
+      sizeRank: 3
+      influence: { radius: 0.1 }
+      sockets: [
+        { id: "socket_p_0", role: "parent", positionHint: "top of head",    rotationOffset: [0, 0, 0] }
+        { id: "socket_p_1", role: "parent", positionHint: "nose",           rotationOffset: [0, 0, 0] }
+        { id: "socket_p_2", role: "parent", positionHint: "right cheek",    rotationOffset: [0, 0, 0] }
+        { id: "socket_p_3", role: "parent", positionHint: "back of head",   rotationOffset: [0, 0, 0] }
+        { id: "socket_p_4", role: "parent", positionHint: "left cheek",     rotationOffset: [0, 0, 0] }
+        { id: "socket_p_5", role: "parent", positionHint: "chest",          rotationOffset: [0, 0, 0] }
+        { id: "socket_p_6", role: "parent", positionHint: "right neck",     rotationOffset: [0, 0, 0] }
+        { id: "socket_p_7", role: "parent", positionHint: "saddle/back",    rotationOffset: [0, 0, 0] }
+        { id: "socket_p_8", role: "parent", positionHint: "left neck",      rotationOffset: [0, 0, 0] }
+        { id: "socket_p_9", role: "parent", positionHint: "right side",     rotationOffset: [0, 0, 0] }
+        { id: "socket_p_10", role: "parent", positionHint: "butthold",      rotationOffset: [0, 0, 0] }
+        { id: "socket_p_11", role: "parent", positionHint: "left side",     rotationOffset: [0, 0, 0] }
+      ]
+    }
 
-      // TODO: add hoon_dog sockets once finalized in Blender
-      "sockets": [],
-      "allowedSockets": [],
-      "influence": { "radius": 0.1 },
-
-      "scene": {
-        // only stuff that overrides the defaults
+    bunny_hat: {
+      objClass: "accessory"
+      modelPath: "/assets/objects/bunny_hat/bunny_hat.glb"
+      size: 0.8
+      sizeRank: 2
+      influence: { radius: 0.12 }
+      sockets: [
+        { id: "socket_c_0", role: "child",  positionHint: "inside",     rotationOffset: [0, 0, 0] }
+        { id: "socket_p_0", role: "parent", positionHint: "front top",  rotationOffset: [0, 0, 0] }
+        { id: "socket_p_1", role: "parent", positionHint: "back top",   rotationOffset: [0, 0, 0] }
+      ]
+      allowedSockets: {
+        hoon_dog:  ["socket_p_0", "socket_p_1", "socket_p_3", "socket_p_5", "socket_p_7", "socket_p_10"]
+        human_mask: ["socket_p_0"]
+        pig_mask:   ["socket_p_0"]
       }
-    },
+    }
 
-    "bunny_mask": {
-      "objClass": "accessory",
-      "modelPath": "/assets/objects/bunny_mask/bunny_mask.glb",
-      "size": 0.8,
-      "sizeRank": 2,
+    cheek_large: {
+      objClass: "accessory"
+      modelPath: "/assets/objects/cheek_large/cheek_large.glb"
+      size: 0.6
+      sizeRank: 1
+      influence: { radius: 0.08 }
+      sockets: [
+        { id: "socket_c_0", role: "child",  positionHint: "inside",   rotationOffset: [0, 0, 0] }
+        { id: "socket_p_0", role: "parent", positionHint: "mid top",  rotationOffset: [0, 0, 0] }
+      ]
+      // allowedSockets omitted => any socket on any larger host
+    }
 
-      // child sockets on the bunny mask (ears / top, etc.)
-      "sockets": [
-        { "id": 0, "node": "socket_c_0" },
-        { "id": 1, "node": "socket_c_1" }
-      ],
+    horn1: {
+      objClass: "accessory"
+      modelPath: "/assets/objects/horn1/horn1.glb"
+      size: 0.5
+      sizeRank: 1
+      influence: { radius: 0.05 }
+      sockets: [
+        { id: "socket_c_0", role: "child", positionHint: "inside", rotationOffset: [0, 0, 0] }
+      ]
+    }
 
-      // empty = can attach to any socket on a larger host
-      "allowedSockets": [],
-      "influence": { "radius": 0.12 }
-    },
+    horn2: {
+      objClass: "accessory"
+      modelPath: "/assets/objects/horn2/horn2.glb"
+      size: 0.5
+      sizeRank: 1
+      influence: { radius: 0.05 }
+      sockets: [
+        { id: "socket_c_0", role: "child", positionHint: "inside", rotationOffset: [0, 0, 0] }
+      ]
+    }
 
     human_mask: {
       objClass: "accessory"
@@ -100,65 +142,49 @@
       size: 0.8
       sizeRank: 2
       influence: { radius: 0.15 }
-
       sockets: [
-        { id: 0, node: "socket_c_0" }
-        // more later if needed
+        { id: "socket_c_0", role: "child",  positionHint: "inside",      rotationOffset: [0, 0, 0] }
+        { id: "socket_p_0", role: "parent", positionHint: "forehead",    rotationOffset: [0, 0, 0] }
+        { id: "socket_p_1", role: "parent", positionHint: "left temple", rotationOffset: [0, 0, 0] }
+        { id: "socket_p_2", role: "parent", positionHint: "left cheek",  rotationOffset: [0, 0, 0] }
+        { id: "socket_p_3", role: "parent", positionHint: "right cheek", rotationOffset: [0, 0, 0] }
+        { id: "socket_p_4", role: "parent", positionHint: "right temple",rotationOffset: [0, 0, 0] }
       ]
-    },
-
-    "pig_mask": {
-      "objClass": "accessory",
-      "modelPath": "/assets/objects/pig_mask/pig_mask.glb",
-      "size": 0.8,
-      "sizeRank": 2,
-
-      // single child socket on top of the pig mask
-      "sockets": [
-        { "id": 0, "node": "socket_c_0" }
-      ],
-
-      "allowedSockets": [],
-      "influence": { "radius": 0.12 }
-    },
-
-    "nose1": {
-      "objClass": "accessory",
-      "modelPath": "/assets/objects/nose1/nose1.glb",
-      "size": 0.6,
-      "sizeRank": 2,
-
-      // socket where horns can stack on the nose
-      "sockets": [
-        { "id": 0, "node": "socket_c_0" }
-      ],
-
-      "allowedSockets": [],
-      "influence": { "radius": 0.06 }
-    },
-
-    "horn1": {
-      "objClass": "accessory",
-      "modelPath": "/assets/objects/horn1/horn1.glb",
-      "size": 0.5,
-      "sizeRank": 1,
-
-      // horns don’t host anything (no child sockets)
-      "sockets": [],
-      // empty = can go on any socket on any bigger object (nose, masks, dog)
-      "allowedSockets": [],
-      "influence": { "radius": 0.05 }
-    },
-
-    "horn2": {
-      "objClass": "accessory",
-      "modelPath": "/assets/objects/horn2/horn2.glb",
-      "size": 0.5,
-      "sizeRank": 1,
-
-      "sockets": [],
-      "allowedSockets": [],
-      "influence": { "radius": 0.05 }
+      allowedSockets: {
+        hoon_dog: ["socket_p_1", "socket_p_3"]
+      }
     }
+
+    pig_mask: {
+      objClass: "accessory"
+      modelPath: "/assets/objects/pig_mask/pig_mask.glb"
+      size: 0.8
+      sizeRank: 2
+      influence: { radius: 0.12 }
+      sockets: [
+        { id: "socket_c_0", role: "child",  positionHint: "inside",      rotationOffset: [0, 0, 0] }
+        { id: "socket_p_0", role: "parent", positionHint: "forehead",    rotationOffset: [0, 0, 0] }
+        { id: "socket_p_1", role: "parent", positionHint: "right cheek", rotationOffset: [0, 0, 0] }
+        { id: "socket_p_2", role: "parent", positionHint: "left cheek",  rotationOffset: [0, 0, 0] }
+      ]
+      allowedSockets: {
+        hoon_dog: ["socket_p_1", "socket_p_3"]
+      }
+    }
+
+    wing: {
+      objClass: "accessory"
+      modelPath: "/assets/objects/wing/wing.glb"
+      size: 0.9
+      sizeRank: 2
+      influence: { radius: 0.12 }
+      sockets: [
+        { id: "socket_c_0", role: "child", positionHint: "inside", rotationOffset: [0, 0, 0] }
+      ]
+      allowedSockets: {
+        hoon_dog: ["socket_p_7"]  // saddle/back only
+      }
+    }
+
   }
 }

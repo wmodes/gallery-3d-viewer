@@ -6,9 +6,11 @@ import { loadObjectConfig } from './config.js';
 import { createInteractionController } from './interaction.js';
 
 (async () => {
-  const { base, debug } = await loadObjectConfig();
+  const { base, bases, accessories, debug } = await loadObjectConfig();
   const { scene, renderer, camera } = createScene(base.scene);
   const model = await loadModel(scene, base);
+
+  preloadRemainingObjects(scene, bases, accessories, base.name);
 
   // Fit camera to model with optional portrait scaling
   const baseCameraZ = camera.position.z;
@@ -36,6 +38,22 @@ import { createInteractionController } from './interaction.js';
     renderer.render(scene, camera);
   });
 })();
+
+function preloadRemainingObjects(scene, bases, accessories, displayedBaseName) {
+  const remainingBases = bases.filter((entry) => entry.name !== displayedBaseName);
+  const remainingObjects = [...remainingBases, ...accessories];
+  if (remainingObjects.length === 0) return;
+
+  Promise.allSettled(
+    remainingObjects.map((entry) =>
+      loadModel(scene, {
+        ...entry,
+        addToScene: false,
+        visible: false
+      })
+    )
+  );
+}
 
 /**
  * Fit the camera distance so the model bounds are in view for the current aspect.
