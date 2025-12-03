@@ -4,11 +4,19 @@ import { loadModel } from './loaders.js';
 import { createScene } from './scene.js';
 import { loadObjectConfig } from './config.js';
 import { createInteractionController } from './interaction.js';
+import { initTray } from './tray.js';
 
 (async () => {
   const { base, bases, accessories, debug } = await loadObjectConfig();
   const { scene, renderer, camera } = createScene(base.scene);
   const model = await loadModel(scene, base);
+  if (!model) {
+    console.error('Failed to load base model; aborting scene setup.');
+    return;
+  }
+
+  const loadedAccessories = await preloadAccessories(scene, accessories);
+  initTray({ accessories: loadedAccessories });
 
   preloadRemainingObjects(scene, bases, accessories, base.name);
 
@@ -53,6 +61,23 @@ function preloadRemainingObjects(scene, bases, accessories, displayedBaseName) {
       })
     )
   );
+}
+
+async function preloadAccessories(scene, accessories) {
+  if (!accessories || accessories.length === 0) return [];
+
+  const results = await Promise.all(
+    accessories.map(async (entry) => {
+      const model = await loadModel(scene, {
+        ...entry,
+        addToScene: false,
+        visible: false
+      });
+      return model ? entry : null;
+    })
+  );
+
+  return results.filter(Boolean);
 }
 
 /**

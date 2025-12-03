@@ -2,6 +2,7 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 const socketRegistry = [];
+const modelRegistry = new Map();
 
 /**
  * Load a model into the scene using a config-driven path and transforms.
@@ -57,16 +58,12 @@ export async function loadModel(scene, options = {}) {
     if (addToScene && scene) {
       scene.add(model);
     }
+    registerModel(label, modelPath, model);
     collectSockets(model, label);
     console.info(`Loaded model "${label}" from ${modelPath}`);
     return model;
   } catch (error) {
     console.warn(`WARNING: Failed to load model "${label}" from ${modelPath}: ${error?.message || error}`);
-
-    // For primary loads we still fail fast; preloads can continue without a hard error.
-    if (addToScene) {
-      throw error;
-    }
     return null;
   }
 }
@@ -79,6 +76,18 @@ export function getSocketRegistry() {
   return socketRegistry;
 }
 
+/**
+ * Get registry of successfully loaded models.
+ * @returns {{id: string, modelPath: string, model: import('three').Object3D}[]}
+ */
+export function getModelRegistry() {
+  return Array.from(modelRegistry.entries()).map(([id, value]) => ({
+    id,
+    modelPath: value.modelPath,
+    model: value.model
+  }));
+}
+
 async function preflightAsset(modelPath, label, addToScene) {
   try {
     const response = await fetch(modelPath, { method: 'HEAD' });
@@ -86,7 +95,6 @@ async function preflightAsset(modelPath, label, addToScene) {
       console.warn(
         `WARNING: Model "${label}" not found at ${modelPath} (HTTP ${response.status} ${response.statusText})`
       );
-      if (addToScene) throw new Error(`Missing model at ${modelPath}`);
       return false;
     }
 
@@ -98,7 +106,6 @@ async function preflightAsset(modelPath, label, addToScene) {
       console.warn(
         `WARNING: Model "${label}" at ${modelPath} has unexpected content-type "${contentType}" (expected GLB)`
       );
-      if (addToScene) throw new Error(`Unexpected content-type ${contentType} for ${modelPath}`);
       return false;
     }
     return true;
@@ -106,7 +113,6 @@ async function preflightAsset(modelPath, label, addToScene) {
     console.warn(
       `WARNING: Could not verify model "${label}" at ${modelPath}: ${error?.message || error}`
     );
-    if (addToScene) throw error;
     return false;
   }
 }
@@ -134,4 +140,8 @@ function collectSockets(model, objectId) {
         .join(', ')}`
     );
   }
+}
+
+function registerModel(id, modelPath, model) {
+  modelRegistry.set(id, { modelPath, model });
 }

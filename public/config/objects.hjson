@@ -64,6 +64,7 @@
     hoon_dog: {
       objClass: "base"
       modelPath: "/assets/objects/hoon_dog/hoon_dog.glb"
+      thumbnail: "/assets/objects/hoon_dog/hoon_dog_thumb.png"
       size: 1.0
       sizeRank: 3
       influence: { radius: 0.1 }
@@ -86,6 +87,7 @@
     bunny_hat: {
       objClass: "accessory"
       modelPath: "/assets/objects/bunny_hat/bunny_hat.glb"
+      thumbnail: "/assets/objects/bunny_hat/bunny_hat_thumb.png"
       size: 0.8
       sizeRank: 2
       influence: { radius: 0.12 }
@@ -104,6 +106,7 @@
     cheek_large: {
       objClass: "accessory"
       modelPath: "/assets/objects/cheek_large/cheek_large.glb"
+      thumbnail: "/assets/objects/cheek_large/cheek_large_thumb.png"
       size: 0.6
       sizeRank: 1
       influence: { radius: 0.08 }
@@ -117,6 +120,7 @@
     horn1: {
       objClass: "accessory"
       modelPath: "/assets/objects/horn1/horn1.glb"
+      thumbnail: "/assets/objects/horn1/horn1_thumb.png"
       size: 0.5
       sizeRank: 1
       influence: { radius: 0.05 }
@@ -128,6 +132,7 @@
     horn2: {
       objClass: "accessory"
       modelPath: "/assets/objects/horn2/horn2.glb"
+      thumbnail: "/assets/objects/horn2/horn2_thumb.png"
       size: 0.5
       sizeRank: 1
       influence: { radius: 0.05 }
@@ -139,6 +144,7 @@
     human_mask: {
       objClass: "accessory"
       modelPath: "/assets/objects/human_mask/human_mask.glb"
+      thumbnail: "/assets/objects/human_mask/human_mask_thumb.png"
       size: 0.8
       sizeRank: 2
       influence: { radius: 0.15 }
@@ -158,6 +164,7 @@
     pig_mask: {
       objClass: "accessory"
       modelPath: "/assets/objects/pig_mask/pig_mask.glb"
+      thumbnail: "/assets/objects/pig_mask/pig_mask_thumb.png"
       size: 0.8
       sizeRank: 2
       influence: { radius: 0.12 }
@@ -175,6 +182,7 @@
     wing: {
       objClass: "accessory"
       modelPath: "/assets/objects/wing/wing.glb"
+      thumbnail: "/assets/objects/wing/wing_thumb.png"
       size: 0.9
       sizeRank: 2
       influence: { radius: 0.12 }
