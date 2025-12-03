@@ -34,11 +34,12 @@ export function createScene(sceneConfig = {}) {
 
   const canvas = document.getElementById('app');
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setClearColor(new THREE.Color(background), 0);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(background);
+  scene.background = null;
 
   const { width: initialWidth, height: initialHeight } = getViewportSize();
   const camera = new THREE.PerspectiveCamera(

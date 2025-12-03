@@ -5,6 +5,7 @@ import { createScene } from './scene.js';
 import { loadObjectConfig } from './config.js';
 import { createInteractionController } from './interaction.js';
 import { initTray } from './tray.js';
+import { initDrag } from './drag.js';
 
 (async () => {
   const { base, bases, accessories, debug } = await loadObjectConfig();
@@ -15,10 +16,11 @@ import { initTray } from './tray.js';
     return;
   }
 
-  const loadedAccessories = await preloadAccessories(scene, accessories);
+  const baseSize = Number.isFinite(base.size) ? base.size : 1;
+  const loadedAccessories = await preloadAccessories(scene, accessories, baseSize);
   initTray({ accessories: loadedAccessories });
 
-  preloadRemainingObjects(scene, bases, accessories, base.name);
+  preloadRemainingObjects(scene, bases, accessories, base.name, baseSize);
 
   // Fit camera to model with optional portrait scaling
   const baseCameraZ = camera.position.z;
@@ -36,6 +38,16 @@ import { initTray } from './tray.js';
     debug || {}
   );
 
+  initDrag({
+    scene,
+    camera,
+    renderer,
+    interaction: interactions,
+    accessories: loadedAccessories,
+    baseSize,
+    baseModel: model
+  });
+
   let previousTime = 0;
   renderer.setAnimationLoop((time) => {
     const delta = (time - previousTime) / 1000;
@@ -47,29 +59,33 @@ import { initTray } from './tray.js';
   });
 })();
 
-function preloadRemainingObjects(scene, bases, accessories, displayedBaseName) {
+function preloadRemainingObjects(scene, bases, accessories, displayedBaseName, baseSize) {
   const remainingBases = bases.filter((entry) => entry.name !== displayedBaseName);
   const remainingObjects = [...remainingBases, ...accessories];
   if (remainingObjects.length === 0) return;
 
   Promise.allSettled(
-    remainingObjects.map((entry) =>
-      loadModel(scene, {
+    remainingObjects.map((entry) => {
+      const scale = scaleForEntry(entry, baseSize);
+      return loadModel(scene, {
         ...entry,
+        ...(scale != null ? { scale } : {}),
         addToScene: false,
         visible: false
-      })
-    )
+      });
+    })
   );
 }
 
-async function preloadAccessories(scene, accessories) {
+async function preloadAccessories(scene, accessories, baseSize) {
   if (!accessories || accessories.length === 0) return [];
 
   const results = await Promise.all(
     accessories.map(async (entry) => {
+      const scale = scaleForEntry(entry, baseSize);
       const model = await loadModel(scene, {
         ...entry,
+        ...(scale != null ? { scale } : {}),
         addToScene: false,
         visible: false
       });
@@ -134,4 +150,13 @@ function scaleZoomRange(interaction, baseDistance, fitDistance) {
   if (interaction.maxZoom != null) next.maxZoom = interaction.maxZoom * scale;
 
   return next;
+}
+
+function scaleForEntry(entry, baseSize) {
+  if (!entry || entry.objClass !== 'accessory') return undefined;
+  const base = Number.isFinite(baseSize) && baseSize > 0 ? baseSize : 1;
+  const size = Number.isFinite(entry.size) ? entry.size : null;
+  if (size === null) return undefined;
+  const relativeScale = size / base;
+  return Number.isFinite(relativeScale) && relativeScale > 0 ? relativeScale : undefined;
 }

@@ -55,6 +55,7 @@ export function createInteractionController(
   };
 
   // Internal state
+  let enabled = true;
   let isDragging = false;
   let lastX = 0;
   let lastY = 0;
@@ -73,6 +74,7 @@ export function createInteractionController(
   debugLog('idle spin impulse applied', { velocityX });
 
   function onPointerDown(event) {
+    if (!enabled) return;
     if (event.cancelable) event.preventDefault();
     activePointers.set(event.pointerId, {
       clientX: event.clientX,
@@ -96,6 +98,7 @@ export function createInteractionController(
   }
 
   function onPointerMove(event) {
+    if (!enabled) return;
     if (event.cancelable) event.preventDefault();
     if (!activePointers.has(event.pointerId)) return;
     activePointers.set(event.pointerId, { clientX: event.clientX, clientY: event.clientY });
@@ -143,6 +146,7 @@ export function createInteractionController(
   }
 
   function onPointerUp() {
+    if (!enabled) return;
     activePointers.delete(event.pointerId);
     const points = Array.from(activePointers.values());
 
@@ -166,6 +170,7 @@ export function createInteractionController(
   }
 
   function onWheel(event) {
+    if (!enabled) return;
     event.preventDefault();
     const isPinchLike = event.ctrlKey === true || event.deltaMode === 1;
     const effectiveSpeed = isPinchLike ? zoomSpeed * pinchZoomMultiplier : zoomSpeed;
@@ -181,11 +186,11 @@ export function createInteractionController(
     return Math.hypot(dx, dy);
   }
 
-  canvas.addEventListener('pointerdown', onPointerDown);
-  canvas.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerdown', onPointerDown);
+  window.addEventListener('pointermove', onPointerMove);
   window.addEventListener('pointerup', onPointerUp);
   window.addEventListener('pointercancel', onPointerUp);
-  canvas.addEventListener('wheel', onWheel, { passive: false });
+  window.addEventListener('wheel', onWheel, { passive: false });
 
   debugLog('listeners attached');
 
@@ -232,13 +237,23 @@ export function createInteractionController(
   }
 
   function dispose() {
-    canvas.removeEventListener('pointerdown', onPointerDown);
-    canvas.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerdown', onPointerDown);
+    window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('pointerup', onPointerUp);
-    canvas.removeEventListener('wheel', onWheel);
+    window.removeEventListener('wheel', onWheel);
   }
 
-  return { update, dispose };
+  function disable() {
+    enabled = false;
+    isDragging = false;
+    activePointers.clear();
+  }
+
+  function enable() {
+    enabled = true;
+  }
+
+  return { update, dispose, enable, disable };
 }
 
 function clamp(value, min, max) {
