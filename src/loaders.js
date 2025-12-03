@@ -1,4 +1,5 @@
 /** @file Generic loader for scene models based on config. */
+import { Box3, Sphere } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 const socketRegistry = [];
@@ -84,8 +85,20 @@ export function getModelRegistry() {
   return Array.from(modelRegistry.entries()).map(([id, value]) => ({
     id,
     modelPath: value.modelPath,
-    model: value.model
+    model: value.model,
+    radius: value.radius
   }));
+}
+
+/**
+ * Get a single model meta entry.
+ * @param {string} id
+ * @returns {{id: string, modelPath: string, model: import('three').Object3D, radius: number} | undefined}
+ */
+export function getModelMeta(id) {
+  const entry = modelRegistry.get(id);
+  if (!entry) return undefined;
+  return { id, ...entry };
 }
 
 async function preflightAsset(modelPath, label, addToScene) {
@@ -143,5 +156,10 @@ function collectSockets(model, objectId) {
 }
 
 function registerModel(id, modelPath, model) {
-  modelRegistry.set(id, { modelPath, model });
+  const box = new Box3().setFromObject(model);
+  const sphere = new Sphere();
+  box.getBoundingSphere(sphere);
+  const radius = Number.isFinite(sphere.radius) && sphere.radius > 0 ? sphere.radius : 1;
+
+  modelRegistry.set(id, { modelPath, model, radius });
 }

@@ -1,6 +1,6 @@
 /** @file App entrypoint: create scene, load config, and add base model. */
 import { Box3, MathUtils, Sphere, Vector3 } from 'three';
-import { loadModel } from './loaders.js';
+import { getModelMeta, loadModel } from './loaders.js';
 import { createScene } from './scene.js';
 import { loadObjectConfig } from './config.js';
 import { createInteractionController } from './interaction.js';
@@ -17,10 +17,13 @@ import { initDrag } from './drag.js';
   }
 
   const baseSize = Number.isFinite(base.size) ? base.size : 1;
-  const loadedAccessories = await preloadAccessories(scene, accessories, baseSize);
+  const baseMeta = getModelMeta(base.name);
+  const baseRadius = Number.isFinite(baseMeta?.radius) && baseMeta.radius > 0 ? baseMeta.radius : 1;
+
+  const loadedAccessories = await preloadAccessories(scene, accessories, baseSize, baseRadius);
   initTray({ accessories: loadedAccessories });
 
-  preloadRemainingObjects(scene, bases, accessories, base.name, baseSize);
+  preloadRemainingObjects(scene, bases, accessories, base.name);
 
   // Fit camera to model with optional portrait scaling
   const baseCameraZ = camera.position.z;
@@ -45,6 +48,7 @@ import { initDrag } from './drag.js';
     interaction: interactions,
     accessories: loadedAccessories,
     baseSize,
+    baseRadius,
     baseModel: model
   });
 
@@ -59,37 +63,42 @@ import { initDrag } from './drag.js';
   });
 })();
 
-function preloadRemainingObjects(scene, bases, accessories, displayedBaseName, baseSize) {
+function preloadRemainingObjects(scene, bases, accessories, displayedBaseName) {
   const remainingBases = bases.filter((entry) => entry.name !== displayedBaseName);
-  const remainingObjects = [...remainingBases, ...accessories];
-  if (remainingObjects.length === 0) return;
+  if (remainingBases.length === 0) return;
 
   Promise.allSettled(
-    remainingObjects.map((entry) => {
-      const scale = scaleForEntry(entry, baseSize);
-      return loadModel(scene, {
+    remainingBases.map((entry) =>
+      loadModel(scene, {
         ...entry,
-        ...(scale != null ? { scale } : {}),
         addToScene: false,
         visible: false
-      });
-    })
+      })
+    )
   );
 }
 
-async function preloadAccessories(scene, accessories, baseSize) {
+async function preloadAccessories(scene, accessories, baseSize, baseRadius) {
   if (!accessories || accessories.length === 0) return [];
 
   const results = await Promise.all(
     accessories.map(async (entry) => {
-      const scale = scaleForEntry(entry, baseSize);
       const model = await loadModel(scene, {
         ...entry,
-        ...(scale != null ? { scale } : {}),
         addToScene: false,
         visible: false
       });
-      return model ? entry : null;
+      if (!model) return null;
+
+      const meta = getModelMeta(entry.name);
+      const accessoryRadius =
+        Number.isFinite(meta?.radius) && meta.radius > 0 ? meta.radius : undefined;
+      const scale = scaleForEntry(entry, baseSize, baseRadius, accessoryRadius);
+      if (scale != null) {
+        model.scale.setScalar(scale);
+      }
+
+      return entry;
     })
   );
 
@@ -152,11 +161,16 @@ function scaleZoomRange(interaction, baseDistance, fitDistance) {
   return next;
 }
 
-function scaleForEntry(entry, baseSize) {
+function scaleForEntry(entry, baseSize, baseRadius, accessoryRadius) {
   if (!entry || entry.objClass !== 'accessory') return undefined;
   const base = Number.isFinite(baseSize) && baseSize > 0 ? baseSize : 1;
   const size = Number.isFinite(entry.size) ? entry.size : null;
   if (size === null) return undefined;
   const relativeScale = size / base;
-  return Number.isFinite(relativeScale) && relativeScale > 0 ? relativeScale : undefined;
+  const radiusRatio =
+    Number.isFinite(baseRadius) && Number.isFinite(accessoryRadius) && accessoryRadius > 0
+      ? baseRadius / accessoryRadius
+      : 1;
+  const finalScale = relativeScale * radiusRatio;
+  return Number.isFinite(finalScale) && finalScale > 0 ? finalScale : undefined;
 }

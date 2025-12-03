@@ -88,7 +88,7 @@
       objClass: "accessory"
       modelPath: "/assets/objects/bunny_hat/bunny_hat.glb"
       thumbnail: "/assets/objects/bunny_hat/bunny_hat_thumb.png"
-      size: 0.8
+      size: 0.25
       sizeRank: 2
       influence: { radius: 0.12 }
       sockets: [
@@ -107,7 +107,7 @@
       objClass: "accessory"
       modelPath: "/assets/objects/cheek_large/cheek_large.glb"
       thumbnail: "/assets/objects/cheek_large/cheek_large_thumb.png"
-      size: 0.6
+      size: 0.2
       sizeRank: 1
       influence: { radius: 0.08 }
       sockets: [
@@ -121,7 +121,7 @@
       objClass: "accessory"
       modelPath: "/assets/objects/horn1/horn1.glb"
       thumbnail: "/assets/objects/horn1/horn1_thumb.png"
-      size: 0.5
+      size: 0.2
       sizeRank: 1
       influence: { radius: 0.05 }
       sockets: [
@@ -133,7 +133,7 @@
       objClass: "accessory"
       modelPath: "/assets/objects/horn2/horn2.glb"
       thumbnail: "/assets/objects/horn2/horn2_thumb.png"
-      size: 0.5
+      size: 0.2
       sizeRank: 1
       influence: { radius: 0.05 }
       sockets: [
@@ -145,7 +145,7 @@
       objClass: "accessory"
       modelPath: "/assets/objects/human_mask/human_mask.glb"
       thumbnail: "/assets/objects/human_mask/human_mask_thumb.png"
-      size: 0.8
+      size: 0.25
       sizeRank: 2
       influence: { radius: 0.15 }
       sockets: [
@@ -165,7 +165,7 @@
       objClass: "accessory"
       modelPath: "/assets/objects/pig_mask/pig_mask.glb"
       thumbnail: "/assets/objects/pig_mask/pig_mask_thumb.png"
-      size: 0.8
+      size: 0.25
       sizeRank: 2
       influence: { radius: 0.12 }
       sockets: [
